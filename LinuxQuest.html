@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LinuxQuest Admin Lab</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #070b12;
+      --surface: #0b1120;
+      --surface-strong: #111827;
+      --text: #e5e7eb;
+      --muted: #94a3b8;
+      --accent: #38bdf8;
+      --accent-strong: #0ea5e9;
+      --success: #40c19f;
+      --warning: #f59e0b;
+      --danger: #fb7185;
+      --border: rgba(56, 189, 248, 0.18);
+      font-family: Inter, system-ui, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: #070b12;
+      background-image: radial-gradient(circle at top, rgba(56, 189, 248, 0.08), transparent 25%),
+        radial-gradient(circle at 80% 10%, rgba(56, 189, 248, 0.05), transparent 20%);
+      color: var(--text);
+    }
+
+    .page-shell {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-dot {
+      width: 12px;
+      height: 12px;
+      background: var(--accent);
+      border-radius: 999px;
+      box-shadow: 0 0 24px rgba(56, 189, 248, 0.24);
+    }
+
+    .brand-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    .brand-subtitle {
+      color: var(--muted);
+      font-size: 0.88rem;
+      margin-top: 2px;
+    }
+
+    nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .tab-button {
+      border: 1px solid transparent;
+      background: rgba(56, 189, 248, 0.06);
+      color: var(--muted);
+      border-radius: 999px;
+      padding: 11px 18px;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      font-size: 0.95rem;
+      box-shadow: inset 0 0 0 1px transparent;
+    }
+
+    .tab-button:hover,
+    .tab-button.active {
+      background: rgba(56, 189, 248, 0.16);
+      border-color: rgba(56, 189, 248, 0.38);
+      color: var(--text);
+      box-shadow: 0 0 20px rgba(56, 189, 248, 0.14);
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: 24px;
+      margin-top: 24px;
+      padding: 28px;
+      border-radius: 24px;
+      background: rgba(56, 189, 248, 0.06);
+      border: 1px solid rgba(56, 189, 248, 0.16);
+      backdrop-filter: blur(12px);
+    }
+
+    .hero h1 {
+      margin: 0;
+      font-size: clamp(2rem, 3vw, 3rem);
+      line-height: 1.05;
+    }
+
+    .hero p {
+      margin: 18px 0 0;
+      max-width: 40rem;
+      color: var(--muted);
+      line-height: 1.8;
+    }
+
+    .hero-keypoints {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 28px;
+    }
+
+    .hero-keypoint {
+      background: rgba(56, 189, 248, 0.05);
+      padding: 16px;
+      border-radius: 18px;
+      border: 1px solid rgba(56, 189, 248, 0.12);
+    }
+
+    .hero-keypoint strong {
+      display: block;
+      margin-bottom: 8px;
+      color: #fff;
+    }
+
+    .modules {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+      margin-top: 18px;
+    }
+
+    .module-card {
+      padding: 18px;
+      border-radius: 20px;
+      background: rgba(56, 189, 248, 0.03);
+      border: 1px solid rgba(35, 53, 84, 0.8);
+      transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .module-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(56, 189, 248, 0.4);
+      box-shadow: 0 0 30px rgba(56, 189, 248, 0.1);
+    }
+
+    .module-card h3 {
+      margin: 0 0 10px;
+      font-size: 1rem;
+    }
+
+    .module-card p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.7;
+      font-size: 0.95rem;
+    }
+
+    section.page-section {
+      display: none;
+      margin-top: 24px;
+    }
+
+    section.page-section.active {
+      display: block;
+    }
+
+    .section-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+
+    .panel {
+      background: var(--surface-strong);
+      border: 1px solid rgba(35, 53, 84, 0.9);
+      border-radius: 22px;
+      padding: 22px;
+      transition: border-color 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .panel:hover {
+      border-color: rgba(56, 189, 248, 0.4);
+      box-shadow: 0 0 40px rgba(56, 189, 248, 0.08);
+    }
+
+    .panel h2 {
+      margin-top: 0;
+    }
+
+    .login-panel {
+      max-width: 540px;
+      margin: 0 auto;
+    }
+
+    .login-panel form {
+      display: grid;
+      gap: 16px;
+    }
+
+    .form-message {
+      display: none;
+      padding: 14px 16px;
+      border-radius: 14px;
+      font-size: 0.95rem;
+      margin-bottom: 8px;
+    }
+
+    .form-message.success {
+      display: block;
+      background: rgba(64, 193, 159, 0.12);
+      color: #a8f0db;
+      border: 1px solid rgba(64, 193, 159, 0.25);
+    }
+
+    .form-message.error {
+      display: block;
+      background: rgba(235, 106, 124, 0.12);
+      color: #ffb3be;
+      border: 1px solid rgba(235, 106, 124, 0.25);
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .field label {
+      font-size: 0.94rem;
+      color: var(--muted);
+    }
+
+    .field input,
+    .field select {
+      border: 1px solid rgba(56, 189, 248, 0.16);
+      background: rgba(56, 189, 248, 0.04);
+      border-radius: 14px;
+      color: var(--text);
+      padding: 14px 16px;
+      font-size: 0.95rem;
+      outline: none;
+    }
+
+    .field input:focus,
+    .field select:focus {
+      border-color: rgba(56, 189, 248, 0.45);
+      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.14);
+    }
+
+    .button,
+    .card-footer button {
+      border: none;
+      border-radius: 999px;
+      padding: 14px 18px;
+      background: linear-gradient(135deg, #00a6ff, #0ea5e9);
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.25s ease, opacity 0.25s ease, box-shadow 0.25s ease;
+      box-shadow: 0 10px 25px rgba(14, 165, 233, 0.08);
+    }
+
+    .button:hover,
+    .card-footer button:hover {
+      transform: translateY(-2px);
+      opacity: 0.98;
+      box-shadow: 0 12px 30px rgba(14, 165, 233, 0.18);
+    }
+
+    .small-button {
+      border-radius: 999px;
+      padding: 10px 14px;
+      background: rgba(14, 165, 233, 0.16);
+      color: #e5e7eb;
+      border: 1px solid rgba(14, 165, 233, 0.3);
+      font-size: 0.88rem;
+      box-shadow: none;
+    }
+
+    .small-button:hover {
+      background: rgba(14, 165, 233, 0.24);
+    }
+
+    .impersonation-banner {
+      display: none;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 18px;
+      margin-top: 18px;
+      border-radius: 18px;
+      background: rgba(14, 165, 233, 0.14);
+      border: 1px solid rgba(14, 165, 233, 0.35);
+      color: #e5e7eb;
+    }
+
+    .impersonation-banner strong {
+      color: #ffffff;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .stat-card {
+      padding: 18px;
+      border-radius: 20px;
+      background: rgba(56, 189, 248, 0.03);
+      border: 1px solid rgba(56, 189, 248, 0.14);
+    }
+
+    .stat-card strong {
+      display: block;
+      font-size: 1.8rem;
+      margin-bottom: 8px;
+    }
+
+    .table-wrapper {
+      overflow-x: auto;
+      border-radius: 20px;
+      border: 1px solid rgba(56, 189, 248, 0.14);
+      background: rgba(56, 189, 248, 0.02);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 720px;
+    }
+
+    th,
+    td {
+      padding: 16px 18px;
+      text-align: left;
+      border-bottom: 1px solid rgba(56, 189, 248, 0.12);
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    th {
+      color: #fff;
+      font-weight: 600;
+      letter-spacing: 0.01em;
+    }
+
+    td.status {
+      font-weight: 600;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      color: white;
+    }
+
+    .badge.active {
+      background: #38bdf8;
+      color: #071020;
+    }
+
+    .badge.pending {
+      background: #0ea5e9;
+    }
+
+    .badge.blocked {
+      background: #f97316;
+    }
+
+    .log-list {
+      display: grid;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .log-item {
+      padding: 16px;
+      border-radius: 18px;
+      background: rgba(56, 189, 248, 0.02);
+      border: 1px solid rgba(56, 189, 248, 0.14);
+    }
+
+    .log-item span {
+      display: block;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .checklist {
+      display: grid;
+      gap: 14px;
+    }
+
+    .checklist-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 14px;
+      border-radius: 18px;
+      background: rgba(56, 189, 248, 0.02);
+      border: 1px solid rgba(56, 189, 248, 0.14);
+    }
+
+    .checklist-item strong {
+      display: block;
+      margin-bottom: 4px;
+      color: #fff;
+    }
+
+    .footer {
+      margin-top: 42px;
+      padding-top: 14px;
+      border-top: 1px solid rgba(56, 189, 248, 0.12);
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+      font-size: 0.92rem;
+    }
+
+    @media (max-width: 900px) {
+      .hero,
+      .section-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+
+      nav {
+        justify-content: center;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .hero {
+        padding: 20px;
+      }
+
+      .tab-button {
+        padding: 10px 14px;
+        font-size: 0.9rem;
+      }
+
+      .panel,
+      .hero-keypoint,
+      .module-card,
+      .checklist-item,
+      .log-item {
+        padding: 16px;
+      }
+
+      th,
+      td {
+        padding: 12px 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-shell">
+    <header>
+      <div class="brand">
+        <span class="brand-dot"></span>
+        <div>
+          <div class="brand-title">LinuxQuest Admin Lab</div>
+          <div class="brand-subtitle">Dark mode learning platform</div>
+        </div>
+      </div>
+      <div style="display:flex; align-items:center; gap:12px;">
+        <div class="brand-subtitle">Responsive portfolio-ready UI</div>
+        <button id="logout-button" type="button" class="button small-button" style="display:none;">Logout</button>
+      </div>
+    </header>
+    <nav>
+      <button class="tab-button active" data-tab="home">Home</button>
+      <button class="tab-button" data-tab="login">Student Login</button>
+      <button class="tab-button" data-tab="register">Create Student Account</button>
+      <button class="tab-button" data-tab="student-dashboard">Student Dashboard</button>
+      <button class="tab-button" data-tab="admin-dashboard">Admin Dashboard</button>
+      <button class="tab-button" data-tab="security-lab">Security Lab</button>
+    </nav>
+    <div id="impersonation-banner" class="impersonation-banner">
+      <div id="impersonation-text"></div>
+      <button type="button" class="button small-button" id="stop-impersonation-button">Return to Admin Account</button>
+    </div>
+
+    <section id="home" class="page-section active">
+      <div class="hero">
+        <div>
+          <h1>LinuxQuest Admin Lab</h1>
+          <p>Build a modern Linux learning environment with student and admin workflows, secure controls, and responsive dashboard experiences for every device.</p>
+          <div class="hero-keypoints">
+            <div class="hero-keypoint">
+              <strong>Hands-on learning</strong>
+              Interactive workstation modules and real-world practice guides.
+            </div>
+            <div class="hero-keypoint">
+              <strong>Admin controls</strong>
+              Manage users, monitor login activity, and harden system security.
+            </div>
+            <div class="hero-keypoint">
+              <strong>Responsive UI</strong>
+              Mobile friendly interface built for modern web platforms.
+            </div>
+            <div class="hero-keypoint">
+              <strong>Dark mode</strong>
+              Sleek visual design optimized for late-night study sessions.
+            </div>
+          </div>
+        </div>
+        <div class="modules">
+          <div class="module-card">
+            <h3>Student journey</h3>
+            <p>Login, track progress, review lessons, and access course resources from a single dashboard.</p>
+          </div>
+          <div class="module-card">
+            <h3>Admin workflow</h3>
+            <p>Manage learner accounts, inspect login logs, and keep labs secure with a clear control panel.</p>
+          </div>
+          <div class="module-card">
+            <h3>Security lab</h3>
+            <p>Implement hardening best practices, monitor risk, and lock down the environment with confidence.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="login" class="page-section">
+      <div class="login-panel panel">
+        <h2>Student Login</h2>
+        <p>Enter your credentials to access interactive Linux labs and progress tracking.</p>
+        <div id="login-message" class="form-message"></div>
+        <form>
+          <div class="field">
+            <label for="username">Username</label>
+            <input id="username" type="text" placeholder="student01" />
+          </div>
+          <div class="field">
+            <label for="password">Password</label>
+            <input id="password" type="password" placeholder="••••••••" />
+          </div>
+          <div class="field">
+            <label for="course">Course</label>
+            <select id="course">
+              <option>Linux Essentials</option>
+              <option>System Administration</option>
+              <option>Security Fundamentals</option>
+            </select>
+          </div>
+          <button type="button" class="button">Log In</button>
+        </form>
+        <p style="margin-top: 18px; color: var(--muted);">
+          Don’t have an account?
+          <button type="button" class="button" style="background: rgba(255,255,255,0.08); color: var(--text); font-weight: 500;" id="show-register">Create one</button>
+        </p>
+      </div>
+    </section>
+
+    <section id="register" class="page-section">
+      <div class="login-panel panel">
+        <h2>Create Student Account</h2>
+        <p>Register a student account with a secure password and then return to login.</p>
+        <div id="register-message" class="form-message"></div>
+        <form id="register-form">
+          <div class="field">
+            <label for="register-name">Full name</label>
+            <input id="register-name" type="text" placeholder="Priya Singh" />
+          </div>
+          <div class="field">
+            <label for="register-email">Email</label>
+            <input id="register-email" type="email" placeholder="priya@linuxquest.edu" />
+          </div>
+          <div class="field">
+            <label for="register-password">Password</label>
+            <input id="register-password" type="password" placeholder="••••••••" />
+          </div>
+          <div class="field">
+            <label for="register-confirm">Confirm password</label>
+            <input id="register-confirm" type="password" placeholder="••••••••" />
+          </div>
+          <button type="button" class="button" id="register-button">Create Account</button>
+        </form>
+        <p style="margin-top: 18px; color: var(--muted);">
+          Already registered?
+          <button type="button" class="button" style="background: rgba(255,255,255,0.08); color: var(--text); font-weight: 500;" id="show-login">Go to login</button>
+        </p>
+      </div>
+    </section>
+
+    <section id="student-dashboard" class="page-section">
+      <div class="panel">
+        <h2>Student Dashboard</h2>
+        <p>Overview of your lab progress, lessons completed, and upcoming tasks.</p>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <strong>12</strong>
+            Courses Enrolled
+          </div>
+          <div class="stat-card">
+            <strong>96%</strong>
+            Lab completion
+          </div>
+          <div class="stat-card">
+            <strong>8</strong>
+            Active challenges
+          </div>
+        </div>
+        <div class="panel" style="margin-top: 24px;">
+          <h3>Account Info</h3>
+          <p id="account-info">Sign in to view account details.</p>
+          <p id="progress-info" style="margin-top: 12px; color: var(--muted);"></p>
+        </div>
+        <div class="section-grid">
+          <div class="panel">
+            <h3>Current Session</h3>
+            <p>Continue your security essentials lab and practice commands in a safe simulated environment.</p>
+            <div class="card-footer" style="margin-top: 18px; display:flex; justify-content: flex-end;">
+              <button>Open Lab</button>
+            </div>
+          </div>
+          <div class="panel">
+            <h3>Recent Notes</h3>
+            <p>Review key terminal shortcuts, user permission commands, and networking fundamentals.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="admin-dashboard" class="page-section">
+      <div class="panel">
+        <h2>Admin Dashboard</h2>
+        <p>Manage student accounts, review login attempts, and maintain secure access controls.</p>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <strong>42</strong>
+            Active Students
+          </div>
+          <div class="stat-card">
+            <strong>14</strong>
+            Pending Reviews
+          </div>
+          <div class="stat-card">
+            <strong>1.2k</strong>
+            Login Attempts
+          </div>
+        </div>
+        <div class="panel" style="margin-top: 24px;">
+          <h3>Student Management</h3>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Role</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="student-table-body">
+                <tr>
+                  <td colspan="5" style="color: var(--muted);">Loading student accounts...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="panel" style="margin-top: 24px;">
+        <h3>Login Attempt Logs</h3>
+        <div class="log-list">
+          <div class="log-item">
+            <strong>2026-05-02 14:18</strong>
+            <span>Success - priya@linuxquest.edu from IP 192.168.12.8</span>
+          </div>
+          <div class="log-item">
+            <strong>2026-05-02 13:54</strong>
+            <span>Failed password - kyle@linuxquest.edu from IP 192.168.12.21</span>
+          </div>
+          <div class="log-item">
+            <strong>2026-05-02 12:30</strong>
+            <span>Success - arjun@linuxquest.edu from IP 192.168.12.9</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="security-lab" class="page-section">
+      <div class="panel">
+        <h2>Security Lab</h2>
+        <p>Track your system hardening progress and implement controls for safe Linux administration.</p>
+        <div class="checklist">
+          <div class="checklist-item">
+            <div>
+              <strong>Enable firewall</strong>
+              Configure ufw rules to restrict access and monitor inbound traffic.
+            </div>
+          </div>
+          <div class="checklist-item">
+            <div>
+              <strong>Configure SSH</strong>
+              Use key-based login, disable root access, and avoid default ports.
+            </div>
+          </div>
+          <div class="checklist-item">
+            <div>
+              <strong>Apply updates</strong>
+              Keep packages and kernels current to reduce vulnerabilities.
+            </div>
+          </div>
+          <div class="checklist-item">
+            <div>
+              <strong>Review logs</strong>
+              Monitor auth logs and detect suspicious login attempts regularly.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <div>LinuxQuest Admin Lab</div>
+      <div>Designed for modern student and admin workflows</div>
+    </footer>
+  </div>
+
+  <script>
+    const tabs = document.querySelectorAll('.tab-button');
+    const sections = document.querySelectorAll('.page-section');
+    const showRegister = document.getElementById('show-register');
+    const showLogin = document.getElementById('show-login');
+    const loginMessage = document.getElementById('login-message');
+    const registerMessage = document.getElementById('register-message');
+    const registerButton = document.getElementById('register-button');
+    const loginButton = document.getElementById('login-button');
+    const logoutButton = document.getElementById('logout-button');
+    const stopImpersonationButton = document.getElementById('stop-impersonation-button');
+    const impersonationBanner = document.getElementById('impersonation-banner');
+    const impersonationText = document.getElementById('impersonation-text');
+    const studentTableBody = document.getElementById('student-table-body');
+    const accountInfo = document.getElementById('account-info');
+    const progressInfo = document.getElementById('progress-info');
+
+    function activateTab(target) {
+      tabs.forEach((button) => {
+        const isActive = button.getAttribute('data-tab') === target;
+        button.classList.toggle('active', isActive);
+      });
+      sections.forEach((section) => {
+        section.classList.toggle('active', section.id === target);
+      });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function showLoginPage() {
+      activateTab('login');
+      if (loginMessage) {
+        setMessage(loginMessage, 'success', 'Please sign in to continue.');
+      }
+    }
+
+    function setMessage(element, type, text) {
+      if (!element) return;
+      element.className = `form-message ${type}`;
+      element.textContent = text;
+    }
+
+    const sessionStorageKey = 'linuxquestSessionId';
+
+    async function apiFetch(url, options = {}) {
+      const storedSessionId = localStorage.getItem(sessionStorageKey);
+      const headers = {
+        ...(options.headers || {}),
+      };
+
+      if (storedSessionId && !headers.Authorization && !headers.authorization) {
+        headers.Authorization = `Bearer ${storedSessionId}`;
+      }
+
+      const response = await fetch(url, {
+        credentials: 'same-origin',
+        ...options,
+        headers,
+      });
+      const data = await response.json().catch(() => ({}));
+      console.log('apiFetch', url, options.method || 'GET', 'status', response.status, data);
+      return { status: response.status, ...data };
+    }
+
+    function getProgressText(user) {
+      const progress = user.progress || {};
+      return `Courses: ${progress.coursesEnrolled || '—'} · Completion: ${progress.completionRate || '—'} · Active challenges: ${progress.activeChallenges || '—'}`;
+    }
+
+    function renderStudentAccount(user) {
+      if (!accountInfo || !progressInfo) return;
+      accountInfo.innerHTML = `<strong>${user.name}</strong><br>Email: ${user.email}<br>Role: ${user.role}`;
+      progressInfo.textContent = getProgressText(user);
+    }
+
+    async function refreshSession() {
+      const result = await apiFetch('/session');
+      if (!result.success) {
+        if (impersonationBanner) impersonationBanner.style.display = 'none';
+        if (accountInfo) accountInfo.textContent = 'Sign in to view account details.';
+        if (progressInfo) progressInfo.textContent = '';
+        if (studentTableBody) studentTableBody.innerHTML = '<tr><td colspan="5" style="color: var(--muted);">Login as admin to load student accounts.</td></tr>';
+        if (logoutButton) logoutButton.style.display = 'none';
+        showLoginPage();
+        return result;
+      }
+
+      const { user, currentUser, impersonation, canImpersonate, isAdmin } = result;
+      if (impersonation && impersonation.active) {
+        if (impersonationBanner) impersonationBanner.style.display = 'flex';
+        if (impersonationText) impersonationText.innerHTML = `You are viewing as <strong>${user.name}</strong>.`;
+      } else if (impersonationBanner) {
+        impersonationBanner.style.display = 'none';
+      }
+
+      if (logoutButton) logoutButton.style.display = 'inline-flex';
+      if (user && user.role === 'student') {
+        renderStudentAccount(user);
+      }
+
+      if (isAdmin) {
+        await populateAdminDashboard();
+      }
+
+      return result;
+    }
+
+    async function handleLogout() {
+      const result = await apiFetch('/logout', { method: 'POST' });
+      localStorage.removeItem(sessionStorageKey);
+      if (logoutButton) logoutButton.style.display = 'none';
+      showLoginPage();
+      if (loginMessage) {
+        setMessage(loginMessage, 'success', result.message || 'Logged out successfully.');
+      }
+    }
+
+    async function handleLogin() {
+      if (!loginMessage) return;
+
+      const email = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value;
+      console.log('Login received email:', email);
+
+      if (!email || !password) {
+        setMessage(loginMessage, 'error', 'Email and password are required.');
+        return;
+      }
+
+      const result = await apiFetch('/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (!result.success) {
+        const message = result.message || (result.status >= 500 ? 'Server error.' : 'Login failed.');
+        setMessage(loginMessage, 'error', message);
+        return;
+      }
+
+      if (result.sessionId) {
+        localStorage.setItem(sessionStorageKey, result.sessionId);
+      }
+
+      console.log('Login successful for', email, 'role:', result.user?.role);
+      setMessage(loginMessage, 'success', 'Login successful.');
+      await refreshSession();
+
+      if (result.user?.role === 'admin') {
+        activateTab('admin-dashboard');
+      } else {
+        activateTab('student-dashboard');
+      }
+    }
+
+    async function registerAccount() {
+      if (!registerMessage) return;
+
+      const name = document.getElementById('register-name').value.trim();
+      const email = document.getElementById('register-email').value.trim();
+      const password = document.getElementById('register-password').value;
+      const confirmPassword = document.getElementById('register-confirm').value;
+
+      if (!name || !email || !password || !confirmPassword) {
+        setMessage(registerMessage, 'error', 'Please complete every field before submitting.');
+        return;
+      }
+
+      if (password.length < 8) {
+        setMessage(registerMessage, 'error', 'Passwords must be at least 8 characters long.');
+        return;
+      }
+
+      if (password !== confirmPassword) {
+        setMessage(registerMessage, 'error', 'Password and confirm password must match.');
+        return;
+      }
+
+      try {
+        const response = await fetch('/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email, password }),
+        });
+        const result = await response.json();
+
+        if (!response.ok) {
+        const message = result.message || (response.status >= 500 ? 'Server error.' : 'Registration failed.');
+        console.log('Register failed for', email, message);
+        setMessage(registerMessage, 'error', message);
+        return;
+      }
+
+      console.log('Register saved user:', { name, email });
+
+        setTimeout(() => {
+          activateTab('login');
+          setMessage(loginMessage, 'success', 'Account created. You can now log in.');
+        }, 1400);
+      } catch (error) {
+        setMessage(registerMessage, 'error', error.message || 'Unable to submit registration.');
+      }
+    }
+
+    async function populateAdminDashboard() {
+      if (!studentTableBody) return;
+      studentTableBody.innerHTML = '<tr><td colspan="5" style="color: var(--muted);">Loading student accounts...</td></tr>';
+      const result = await apiFetch('/users');
+      if (!result.success) {
+        studentTableBody.innerHTML = `<tr><td colspan="5" style="color: var(--muted);">${result.message || 'Unable to load student accounts.'}</td></tr>`;
+        return;
+      }
+
+      const students = result.students || [];
+      if (!students.length) {
+        studentTableBody.innerHTML = '<tr><td colspan="5" style="color: var(--muted);">No student accounts found.</td></tr>';
+        return;
+      }
+
+      studentTableBody.innerHTML = '';
+      students.forEach((student) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${student.name}</td>
+          <td>${student.email}</td>
+          <td>${student.role}</td>
+          <td class="status"><span class="badge active">Active</span></td>
+          <td><button type="button" class="button small-button impersonate-button" data-student-id="${student.id}">Impersonate</button></td>
+        `;
+        studentTableBody.appendChild(row);
+      });
+
+      studentTableBody.querySelectorAll('.impersonate-button').forEach((button) => {
+        button.addEventListener('click', () => impersonateStudent(button.dataset.studentId));
+      });
+    }
+
+    async function impersonateStudent(studentId) {
+      if (!loginMessage) return;
+      const result = await apiFetch('/impersonate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ studentId }),
+      });
+
+      if (!result.success) {
+        setMessage(loginMessage, 'error', result.message || 'Unable to impersonate student.');
+        return;
+      }
+
+      setMessage(loginMessage, 'success', 'Impersonation started. Redirecting to student view...');
+      await refreshSession();
+      activateTab('student-dashboard');
+    }
+
+    async function stopImpersonation() {
+      if (!loginMessage) return;
+      const result = await apiFetch('/impersonation/stop', {
+        method: 'POST',
+      });
+
+      if (!result.success) {
+        setMessage(loginMessage, 'error', result.message || 'Unable to return to admin.');
+        return;
+      }
+
+      setMessage(loginMessage, 'success', 'Returned to admin account.');
+      await refreshSession();
+      activateTab('admin-dashboard');
+    }
+
+    tabs.forEach((tab) => {
+      tab.addEventListener('click', () => {
+        activateTab(tab.getAttribute('data-tab'));
+      });
+    });
+
+    showRegister?.addEventListener('click', () => activateTab('register'));
+    showLogin?.addEventListener('click', () => activateTab('login'));
+    loginButton?.addEventListener('click', handleLogin);
+    registerButton?.addEventListener('click', registerAccount);
+    logoutButton?.addEventListener('click', handleLogout);
+    stopImpersonationButton?.addEventListener('click', stopImpersonation);
+
+    refreshSession();
+  </script>
+</body>
+</html>
