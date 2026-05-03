@@ -10,12 +10,13 @@ Edit /etc/hosts and add:
 
 Run:
 
+```bash
 sudo a2enmod proxy
 sudo a2enmod proxy_http
 sudo a2enmod auth_basic
 sudo a2enmod authn_file
 sudo systemctl restart apache2
-
+```
 ## Virtual Host Configuration
 
 File:
@@ -24,6 +25,7 @@ File:
 
 Example config:
 
+```apache
 <VirtualHost *:80>
     ServerName linuxquest.local
     ProxyPreserveHost On
@@ -41,7 +43,7 @@ Example config:
     ProxyPass / http://127.0.0.1:3000/
     ProxyPassReverse / http://127.0.0.1:3000/
 </VirtualHost>
-
+```
 ## Run Node App
 
 node server.js
